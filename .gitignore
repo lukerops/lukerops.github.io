@@ -1,0 +1,6 @@
+# hugo build file
+.hugo_build.lock
+
+# builded site
+public/
+
