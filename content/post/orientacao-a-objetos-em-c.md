@@ -25,8 +25,8 @@ Quando definimos uma `struct` em C estamos na verdade definindo como queremos qu
 
 ```c
 struct exemplo {
-  int numero;
-  char texto[10];
+    int numero;
+    char texto[10];
 };
 ```
 
@@ -66,7 +66,7 @@ colocar o "*".
 */
 
 int soma(int *x, int *y) {
-  return (*x) + (*y);
+    return (*x) + (*y);
 }
 
 /*
@@ -76,13 +76,13 @@ escopo da função.
 */
 
 int concatena_string(const char *src, char *dst, int dst_size) {
-  if ((strlen(src) + strlen(dst)) > dst_size) {
-    printf("dst sem o tamanho adequado\n");
-    return -1;
-  }
+    if ((strlen(src) + strlen(dst)) > dst_size) {
+        printf("dst sem o tamanho adequado\n");
+        return -1;
+    }
 
-  strcat(dst, src);
-  return 0;
+    strcat(dst, src);
+    return 0;
 }
 ```
 
@@ -101,7 +101,7 @@ nosso código.
 */
 
 int funcao_exemplo(int x, int y) {
-  return x + y;
+    return x + y;
 }
 
 /*
@@ -111,7 +111,7 @@ diretamente, ficando:
 */
 
 int exemplo_funcao_como_argumento(int (* callback)(int x, int y), int a, int b) {
-  return callback(a, b);
+    return callback(a, b);
 }
 
 /*
@@ -121,8 +121,8 @@ exemplo_funcao_como_argumento(funcao_exemplo, 1, 2);
 */
 
 void print() {
-  // deverá imprimir "resultado: 3" na tela
-  printf("resultado: %d\n", exemplo_funcao_como_argumento(funcao_exemplo, 1, 2));
+    // deverá imprimir "resultado: 3" na tela
+    printf("resultado: %d\n", exemplo_funcao_como_argumento(funcao_exemplo, 1, 2));
 }
 ```
 
@@ -145,22 +145,22 @@ float b = (float) a;
 Como ponteiros são apenas apontamentos para endereços de memória, quando fazemos a conversão de tipo de um ponteiro estamos na verdade dizendo como o nosso código deveria interpretar aquele dado que está salvo na memória e caso não tomemos cuidado com os tamanhos, posição e os dados que estão salvos podemos gerar um bug em nosso código. Exemplo:
 
 ```c
-char a = 'a';
-int b = (int) a;
 /*
 Dessa forma, como falado anteriormente, o compilador
 fica responsável por fazer a operação, e com isso,
 resultando em um inteiro com valor b = 97
 (obs: isso acontece porque 'a' na tabela ascii é 97)
 */
+char a = 'a';
+int b = (int) a;
 
-char *a = "a";
-int *b = (int*) a;
 /*
 Fazendo a conversão de ponteiro estamos apenas dizendo
 ao nosso código como interpretar os dados que estão na
 posição de memoria apontada pelo ponteiro "char *a"
 */
+char *a = "a";
+int *b = (int*) a;
 ```
 
 > Perceba que, nesse caso, a declaração da variável `char *a = "a";` é equivalente a `char a[2] = "a";`.
@@ -198,17 +198,17 @@ Por se tratarem de métodos (funções que realizam operações sobre os atribut
 
 ```c
 struct veiculo {
-  // Qualquer atributo que queira na classe
-  int rodas;
-  float kilometragem;
-  float combustivel; // Litros de combustível
-  int _estado;
-  float _eficiencia; // km/L
+    // Qualquer atributo que queira na classe
+    int rodas;
+    float kilometragem;
+    float combustivel; // Litros de combustível
+    int _estado;
+    float _eficiencia; // km/L
 
-  // Agora definimos os métodos da nossa classe
-  int (* ligar)(struct veiculo *self);
-  int (* desligar)(struct veiculo *self);
-  float (* locomover)(struct veiculo *self, float km);
+    // Agora definimos os métodos da nossa classe
+    int (* ligar)(struct veiculo *self);
+    int (* desligar)(struct veiculo *self);
+    float (* locomover)(struct veiculo *self, float km);
 };
 ```
 
@@ -224,8 +224,8 @@ Vamos criar um enum pra representar os estados
 do veiculo.
 */
 enum veiculo_estado {
-  VEICULO_DESLIGADO = 1,
-  VEICULO_LIGADO,
+    VEICULO_DESLIGADO = 1,
+    VEICULO_LIGADO,
 };
 
 /*
@@ -233,12 +233,12 @@ A função de ligar irá mudar o estado do
 veiculo se tiver combustível para isso.
 */
 int veiculo_ligar(struct veiculo *self) {
-  if (self->combustivel == 0) {
-    return -1;
-  }
+    if (self->combustivel == 0) {
+        return -1;
+    }
 
-  self->_estado = VEICULO_LIGADO;
-  return 0;
+    self->_estado = VEICULO_LIGADO;
+    return 0;
 }
 
 /*
@@ -246,8 +246,8 @@ A função de desligar apenas muda o estado do
 veiculo.
 */
 int veiculo_desligar(struct veiculo *self) {
-  self->_estado = VEICULO_DESLIGADO;
-  return 0;
+    self->_estado = VEICULO_DESLIGADO;
+    return 0;
 }
 
 /*
@@ -257,21 +257,21 @@ de combustível presente e sua eficiência, retornando
 a quantidade de km andados.
 */
 float veiculo_locomover(struct veiculo *self, float km) {
-  if (self->_estado == VEICULO_DESLIGADO) {
-    return 0;
-  }
+    if (self->_estado == VEICULO_DESLIGADO) {
+        return 0;
+    }
 
-  float km_max = self->_eficiencia * self->combustivel;
+    float km_max = self->_eficiencia * self->combustivel;
 
-  if (km_max > km) {
-    self->kilometragem += km;
-    self->combustivel -= km / self->_eficiencia;
-    return km;
-  }
+    if (km_max > km) {
+        self->kilometragem += km;
+        self->combustivel -= km / self->_eficiencia;
+        return km;
+    }
 
-  self->kilometragem += km_max;
-  self->combustivel = 0;
-  return km_max;
+    self->kilometragem += km_max;
+    self->combustivel = 0;
+    return km_max;
 }
 ```
 
@@ -285,25 +285,27 @@ void [nome da classe]_init([referencia do objeto], [parâmetros do construtor])
 
 ```c
 void veiculo_init(struct veiculo *obj, float eficiencia) {
-  /*
-  Como no C não conseguimos definir os valores padrões
-  que serão utilizados na struct, então precisamos
-  inicializar todos os atributos que receberão um
-  valor diferente do padrão.
-  */
-  ptr->_estado = VEICULO_DESLIGADO;
-  ptr->_eficiencia = eficiencia;
+    /*
+    Como no C não conseguimos definir os valores padrões
+    que serão utilizados na struct, então precisamos
+    inicializar todos os atributos com seu valor padrão.
+    */
+    obj->rodas = 0;
+    obj->kilometragem = 0;
+    obj->combustivel = 0;
+    obj->_estado = VEICULO_DESLIGADO;
+    obj->_eficiencia = eficiencia;
 
-  /*
-  Vamos atribuir as funções que definimos previamente
-  como métodos da nossa classe utilizando os ponteiros
-  de funções.
-  */
-  ptr->ligar = veiculo_ligar;
-  ptr->desligar = veiculo_desligar;
-  ptr->locomover = veiculo_locomover;
+    /*
+    Vamos atribuir as funções que definimos previamente
+    como métodos da nossa classe utilizando os ponteiros
+    de funções.
+    */
+    obj->ligar = veiculo_ligar;
+    obj->desligar = veiculo_desligar;
+    obj->locomover = veiculo_locomover;
 
-  return;
+    return;
 }
 ```
 
@@ -317,27 +319,27 @@ Para exemplificar, vamos criar duas classes filhas: `carro` e `moto`.
 
 ```c
 struct carro {
-  struct veiculo parent;
+    struct veiculo parent;
 };
 
 void carro_init(struct carro *obj, float eficiencia) {
-  veiculo_init(&obj->parent, eficiencia);
+    veiculo_init(&obj->parent, eficiencia);
 
-  obj->parent.rodas = 4;
+    obj->parent.rodas = 4;
 
-  return;
+    return;
 }
 
 struct moto {
-  struct veiculo parent;
+    struct veiculo parent;
 };
 
-void carro_init(struct moto *obj, float eficiencia) {
-  veiculo_init(&obj->parent, eficiencia);
+void moto_init(struct moto *obj, float eficiencia) {
+    veiculo_init(&obj->parent, eficiencia);
 
-  obj->parent.rodas = 2;
+    obj->parent.rodas = 2;
 
-  return;
+    return;
 }
 ``` 
 
@@ -404,33 +406,33 @@ A metodologia aqui apresentada permite simular o comportamento da orientação a
 ```c
 // Definimos a classe "veiculo"
 struct veiculo {
-  int rodas;
+    int rodas;
 };
 
 // Definimos a classe "carro" como sendo filha de "veiculo"
 struct carro {
-  struct veiculo parent;
+    struct veiculo parent;
 };
 
 // Definimos a classe "fruta"
 struct fruta {
-  int calorias;
+    int calorias;
 };
 
 // Definimos a classe "banana" como sendo filha de "fruta"
 struct banana {
-  struct fruta parent;
+    struct fruta parent;
 };
 
 void funcao_com_erro(struct banana *obj) {
-  /*
-  Apesar de "banana" não ser uma classe filha de
-  "veiculo", para o compilador a conversão de ponteiros
-  não está errada, e portanto, o código irá compilar,
-  porém, isso produzirá um bug em runtime.
-  */
-  struct veiculo *conversao_errada = (struct veiculo*) obj;
-  ...
+    /*
+    Apesar de "banana" não ser uma classe filha de
+    "veiculo", para o compilador a conversão de ponteiros
+    não está errada, e portanto, o código irá compilar,
+    porém, isso produzirá um bug em runtime.
+    */
+    struct veiculo *conversao_errada = (struct veiculo*) obj;
+    ...
 }
 ```
 
@@ -439,3 +441,5 @@ void funcao_com_erro(struct banana *obj) {
 O texto anterior introduz a possibilidade de realizar a programação orientada a objetos utilizando puramente a linguagem C. Apresenta também alguns pontos de atenção muito importante para que não seja introduzidos bugs em runtime.
 
 Vale ressaltar que nem todos os conceitos da orientação a objetos foram implementados (ex: polimorfismo), mas, nada impede que esses conceitos também não possam ser implementados.
+
+[Código Fonte](https://github.com/lucasscvvieira/blog-post-source-codes/tree/main/orientacao-a-objetos-em-c)
