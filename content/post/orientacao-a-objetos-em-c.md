@@ -1,7 +1,6 @@
 ---
 title: "Orientação a Objetos em C"
 date: 2022-08-25T05:37:05-03:00
-draft: true
 ---
 
 Todo mundo que entra nesse universo da programação já ouviu falar sobre o paradigma de orientação a objetos, mas você sabia que da pra aproveitar esses conceitos e aplicar em C?
