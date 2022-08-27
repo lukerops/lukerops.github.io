@@ -55,11 +55,11 @@ params:
     provider: giscus
 
     giscus:
-      repo: WingLim/hugo-tania
-      id: MDEwOlJlcG9zaXRvcnkzMTYyNjQzMDc=
+      repo: lucasscvvieira/lucasscvvieira.github.io
+      id: R_kgDOHraWIw
       category:
         name: Comments
-        id: DIC_kwDOEtnPc84B_WKP
+        id: DIC_kwDOHraWI84CRFdE
 
 menu:
   header:
