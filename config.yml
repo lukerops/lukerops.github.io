@@ -55,7 +55,7 @@ params:
     provider: giscus
 
     giscus:
-      repo: lucasscvvieira/lucasscvvieira.github.io
+      repo: lukerops/lukerops.github.io
       id: R_kgDOHraWIw
       category:
         name: Comments
