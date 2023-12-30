@@ -1,0 +1,270 @@
+<!doctype html><html lang=pt-br><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><meta http-equiv=X-UA-Compatible content="IE=edge"><meta name=theme-color content="dark"><title>Resolvendo APM em Python com OpenTelemetry | Blog do Lucas</title>
+<meta property="og:site_name" content="Hugo Tania is Amazing"><meta property="og:title" content="Resolvendo APM em Python com OpenTelemetry | Blog do Lucas"><meta itemprop=name content="Resolvendo APM em Python com OpenTelemetry | Blog do Lucas"><meta name=twitter:title content="Resolvendo APM em Python com OpenTelemetry | Blog do Lucas"><meta name=application-name content="Resolvendo APM em Python com OpenTelemetry | Blog do Lucas"><meta name=twitter:card content="summary"><meta name=description content="Hugo is Absurdly Fast!"><meta name=twitter:description content="Hugo is Absurdly Fast!"><meta itemprop=description content="Hugo is Absurdly Fast!"><meta property="og:description" content="Hugo is Absurdly Fast!"><link rel="shortcut icon" type=image/x-icon href=/favicon.ico><link rel=stylesheet href=/sass/main.min.ab99ff095f832511e24ffb2fba2b51ad473b2f7e9301d674eba2c6c3a6e8bd81.css></head><script>(function(){const e="ThemeColorScheme";localStorage.getItem(e)||localStorage.setItem(e,"auto")})()</script><script>(function(){const t="ThemeColorScheme",e=localStorage.getItem(t),n=window.matchMedia("(prefers-color-scheme: dark)").matches===!0;e=="dark"||e==="auto"&&n?document.documentElement.dataset.userColorScheme="dark":document.documentElement.dataset.userColorScheme="light"})()</script><body class=dark><nav class=navbar><div class=container><div class=flex><div><a class=brand href=/>Blog do Lucas</a></div><div class=flex><a href=/posts/>Posts</a>
+<button id=dark-mode-button><svg class="light" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" focusable="false" width="1em" height="1em" style="-ms-transform:rotate(360deg);-webkit-transform:rotate(360deg);transform:rotate(360deg)" viewBox="0 0 36 36"><path fill="#ffd983" d="M30.312.776C32 19 20 32 .776 30.312c8.199 7.717 21.091 7.588 29.107-.429C37.9 21.867 38.03 8.975 30.312.776z"/><path d="M30.705 15.915a1.163 1.163.0 101.643 1.641 1.163 1.163.0 00-1.643-1.641zm-16.022 14.38a1.74 1.74.0 000 2.465 1.742 1.742.0 100-2.465zm13.968-2.147a2.904 2.904.0 01-4.108.0 2.902 2.902.0 010-4.107 2.902 2.902.0 014.108.0 2.902 2.902.0 010 4.107z" fill="#ffcc4d"/><rect x="0" y="0" width="36" height="36" fill="rgba(0, 0, 0, 0)"/></svg><svg class="dark" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" focusable="false" width="1em" height="1em" style="-ms-transform:rotate(360deg);-webkit-transform:rotate(360deg);transform:rotate(360deg)" viewBox="0 0 36 36"><path fill="#ffd983" d="M16 2s0-2 2-2 2 2 2 2v2s0 2-2 2-2-2-2-2V2zm18 14s2 0 2 2-2 2-2 2h-2s-2 0-2-2 2-2 2-2h2zM4 16s2 0 2 2-2 2-2 2H2s-2 0-2-2 2-2 2-2h2zm5.121-8.707s1.414 1.414.0 2.828-2.828.0-2.828.0L4.878 8.708s-1.414-1.414.0-2.829c1.415-1.414 2.829.0 2.829.0l1.414 1.414zm21 21s1.414 1.414.0 2.828-2.828.0-2.828.0l-1.414-1.414s-1.414-1.414.0-2.828 2.828.0 2.828.0l1.414 1.414zm-.413-18.172s-1.414 1.414-2.828.0.0-2.828.0-2.828l1.414-1.414s1.414-1.414 2.828.0.0 2.828.0 2.828l-1.414 1.414zm-21 21s-1.414 1.414-2.828.0.0-2.828.0-2.828l1.414-1.414s1.414-1.414 2.828.0.0 2.828.0 2.828l-1.414 1.414zM16 32s0-2 2-2 2 2 2 2v2s0 2-2 2-2-2-2-2v-2z"/><circle fill="#ffd983" cx="18" cy="18" r="10"/><rect x="0" y="0" width="36" height="36" fill="rgba(0, 0, 0, 0)"/></svg></button></div></div></div></nav><main><div class=container><article><header class=article-header><div class=thumb><div><h1>Resolvendo APM em Python com OpenTelemetry</h1><div class=post-meta><div>By Lucas Campos Vieira | <time>December 29, 2023</time>
+| 7 minutes</div><div class=tags><a href=/tags/python/>python</a>
+<a href=/tags/opentelemetry/>opentelemetry</a>
+<a href=/tags/trace/>trace</a>
+<a href=/tags/apm/>apm</a></div></div></div></div></header></article><div class=article-post><h2 id=introdução><a href=#introdu%c3%a7%c3%a3o class=anchor><svg class="icon" aria-hidden="true" focusable="false" height="16" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5.0-3-1.69-3-3.5S2.55 3 4 3h4c1.45.0 3 1.69 3 3.5.0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98.0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98.0-2-1.22-2-2.5.0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45.0 3-1.69 3-3.5S14.5 6 13 6z"/></svg></a>Introdução</h2><p>Todo desenvolvedor em algum momento de sua carreira já passou raiva com mudança de alguma
+tecnologia. Sempre que isso acontece, é necessário fazer uma série de modificações em um,
+ou vários, sistemas que tomamos conta e é exatamente isso que torna todo o processo de
+mudança doloroso. Atualmente, a empresa que estou trabalhando, decidiu por mudar a
+ferramenta de APM que utilizamos para centralizar o trace de todos os sistemas em um lugar
+só. O problema que essa decisão gera é a mudança de todos os pontos do código que contém a
+geração de trace utilizando a biblioteca de uma ferramenta para utilizar a biblioteca de
+outra ferramenta, ou seja, sempre que houver esse tipo de mudança todo esse trabalho
+precisará ser refeito.</p><h3 id=mas-qual-é-o-problema-de-verdade-><a href=#mas-qual-%c3%a9-o-problema-de-verdade- class=anchor><svg class="icon" aria-hidden="true" focusable="false" height="16" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5.0-3-1.69-3-3.5S2.55 3 4 3h4c1.45.0 3 1.69 3 3.5.0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98.0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98.0-2-1.22-2-2.5.0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45.0 3-1.69 3-3.5S14.5 6 13 6z"/></svg></a>Mas qual é o problema de verdade? 🤔</h3><p>Nós, programadores, somos contratados para resolver problemas, porém, sempre que
+precisamos fazer algum tipo de &ldquo;trabalho braçal&rdquo;, ou seja, ficar realizando alguma tarefa
+repetitiva, nos sentimos angustiados e desmotivados, e é exatamente esse tipo de trabalho
+que é gerado quando realizamos alterações de ferramentas em algum nível.</p><h3 id=e-não-tem-nada-que-possamos-fazer-nessa-situação-a-não-ser-fazer-esse-trabalho-chato-><a href=#e-n%c3%a3o-tem-nada-que-possamos-fazer-nessa-situa%c3%a7%c3%a3o-a-n%c3%a3o-ser-fazer-esse-trabalho-chato- class=anchor><svg class="icon" aria-hidden="true" focusable="false" height="16" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5.0-3-1.69-3-3.5S2.55 3 4 3h4c1.45.0 3 1.69 3 3.5.0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98.0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98.0-2-1.22-2-2.5.0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45.0 3-1.69 3-3.5S14.5 6 13 6z"/></svg></a>E não tem nada que possamos fazer nessa situação a não ser fazer esse trabalho chato? 🥹</h3><p>Ainda bem que a maioria dos desenvolvedores pensam igual, e com isso, criaram uma
+ferramenta genérica capaz de centralizar a criação e envio de métricas, traces e logs,
+assim, podendo ser enviado para vários backends diferentes bastando mudar algumas
+configurações. Essa ferramenta &ldquo;milagrosa&rdquo; que será abordada nesse post é o
+<a href=https://opentelemetry.io/>OpenTelemetry</a>.</p><blockquote><p>🚨 Observação importante: Como nem tudo são flores, o trabalho chato precisará ser feito
+pelo menos uma vez, mudando da biblioteca atual para o OpenTelemetry.</p></blockquote><h2 id=explorando-a-solução><a href=#explorando-a-solu%c3%a7%c3%a3o class=anchor><svg class="icon" aria-hidden="true" focusable="false" height="16" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5.0-3-1.69-3-3.5S2.55 3 4 3h4c1.45.0 3 1.69 3 3.5.0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98.0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98.0-2-1.22-2-2.5.0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45.0 3-1.69 3-3.5S14.5 6 13 6z"/></svg></a>Explorando a Solução</h2><h3 id=aplicação-de-exemplo><a href=#aplica%c3%a7%c3%a3o-de-exemplo class=anchor><svg class="icon" aria-hidden="true" focusable="false" height="16" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5.0-3-1.69-3-3.5S2.55 3 4 3h4c1.45.0 3 1.69 3 3.5.0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98.0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98.0-2-1.22-2-2.5.0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45.0 3-1.69 3-3.5S14.5 6 13 6z"/></svg></a>Aplicação de Exemplo</h3><p>Para mostrar como tudo funciona, vamos utilizar uma API simples desenvolvida utilizando o
+framework web <a href=https://fastapi.tiangolo.com/>FastAPI</a>:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>pip install fastapi uvicorn
+</span></span></code></pre></td></tr></table></div></div><p>app.py</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=kn>from</span> <span class=nn>random</span> <span class=kn>import</span> <span class=n>randint</span>
+</span></span><span class=line><span class=cl><span class=kn>from</span> <span class=nn>typing</span> <span class=kn>import</span> <span class=n>Optional</span>
+</span></span><span class=line><span class=cl><span class=kn>import</span> <span class=nn>logging</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kn>from</span> <span class=nn>fastapi</span> <span class=kn>import</span> <span class=n>FastAPI</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=n>logging</span><span class=o>.</span><span class=n>basicConfig</span><span class=p>(</span><span class=n>level</span><span class=o>=</span><span class=n>logging</span><span class=o>.</span><span class=n>INFO</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=n>app</span> <span class=o>=</span> <span class=n>FastAPI</span><span class=p>()</span>
+</span></span><span class=line><span class=cl><span class=n>logger</span> <span class=o>=</span> <span class=n>logging</span><span class=o>.</span><span class=n>getLogger</span><span class=p>(</span><span class=vm>__name__</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>def</span> <span class=nf>roll</span><span class=p>():</span>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=n>randint</span><span class=p>(</span><span class=mi>1</span><span class=p>,</span> <span class=mi>6</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=nd>@app.get</span><span class=p>(</span><span class=s2>&#34;/rolldice&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=k>async</span> <span class=k>def</span> <span class=nf>roll_dice</span><span class=p>(</span><span class=n>player</span><span class=p>:</span> <span class=n>Optional</span><span class=p>[</span><span class=nb>str</span><span class=p>]</span> <span class=o>=</span> <span class=s2>&#34;Anonymous&#34;</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=c1># Joga o dado e recebe o resultado aleatório</span>
+</span></span><span class=line><span class=cl>    <span class=n>result</span> <span class=o>=</span> <span class=n>roll</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>    <span class=n>logger</span><span class=o>.</span><span class=n>warn</span><span class=p>(</span><span class=s2>&#34;</span><span class=si>%s</span><span class=s2> is rolling the dice: </span><span class=si>%d</span><span class=s2>&#34;</span><span class=p>,</span> <span class=n>player</span><span class=p>,</span> <span class=n>result</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=p>{</span><span class=s2>&#34;result&#34;</span><span class=p>:</span> <span class=n>result</span><span class=p>}</span>
+</span></span></code></pre></td></tr></table></div></div><p>Para testar a aplicação, basta executar:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1># inicia a aplicação</span>
+</span></span><span class=line><span class=cl>uvicorn app:app --port <span class=m>8080</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># realiza uma requisição usando o player &#34;Anônimo&#34;</span>
+</span></span><span class=line><span class=cl>curl -s http://localhost:8080/rolldice
+</span></span><span class=line><span class=cl><span class=c1># realiza uma requisição usando o player &#34;Lukerops&#34;</span>
+</span></span><span class=line><span class=cl>curl -s http://localhost:8080/rolldice?player<span class=o>=</span>Lukerops
+</span></span></code></pre></td></tr></table></div></div><h3 id=instrumentando-o-opentelemetry><a href=#instrumentando-o-opentelemetry class=anchor><svg class="icon" aria-hidden="true" focusable="false" height="16" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5.0-3-1.69-3-3.5S2.55 3 4 3h4c1.45.0 3 1.69 3 3.5.0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98.0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98.0-2-1.22-2-2.5.0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45.0 3-1.69 3-3.5S14.5 6 13 6z"/></svg></a>Instrumentando o OpenTelemetry</h3><p>Existem duas formas de se instrumentar o OpenTelemetry no python, mas vou focar apenas na
+instrumentação automática por fins de simplicidade.</p><h4 id=instalação><a href=#instala%c3%a7%c3%a3o class=anchor><svg class="icon" aria-hidden="true" focusable="false" height="16" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5.0-3-1.69-3-3.5S2.55 3 4 3h4c1.45.0 3 1.69 3 3.5.0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98.0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98.0-2-1.22-2-2.5.0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45.0 3-1.69 3-3.5S14.5 6 13 6z"/></svg></a>Instalação</h4><p>A instalação se divide em alguns pacotes diferentes, mas, para o nosso caso, em que o foco
+está na simplicidade, podemos resumir apenas no pacote <code>opentelemetry-distro</code>. Ele irá
+instalar todas as bibliotecas e ferramentas necessárias para fazer a instrumentação
+automática.</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>pip install opentelemetry-distro
+</span></span></code></pre></td></tr></table></div></div><p>Após fazer a instalação, vamos fazer o <code>bootstrap</code>, assim, o opentelemetry identificará as
+bibliotecas que utilizamos e instalará tudo que será necessário para instrumenta-las
+corretamente.</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>opentelemetry-bootstrap -a install
+</span></span></code></pre></td></tr></table></div></div><blockquote><p>É possível ver quais as bibliotecas extras que serão instaladas através do comando
+<code>opentelemetry-bootstrap -a requirements</code></p></blockquote><h4 id=executando-a-aplicação><a href=#executando-a-aplica%c3%a7%c3%a3o class=anchor><svg class="icon" aria-hidden="true" focusable="false" height="16" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5.0-3-1.69-3-3.5S2.55 3 4 3h4c1.45.0 3 1.69 3 3.5.0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98.0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98.0-2-1.22-2-2.5.0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45.0 3-1.69 3-3.5S14.5 6 13 6z"/></svg></a>Executando a Aplicação</h4><p>Agora que temos a ferramenta instalada, o comando para iniciar a aplicação é alterado para
+que o opentelemetry consiga carregar dinamicamente algumas coisas e já entregar alguns
+traces automáticamente, ficando:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>opentelemetry-instrument <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>    --traces_exporter console <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>    --service_name otl-example <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>        uvicorn app:app --port <span class=m>8080</span>
+</span></span></code></pre></td></tr></table></div></div><p>Os parâmetros também podem ser configurados através de variáveis de ambiente, o que torna
+mais simples o comando, ficando:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=nb>export</span> <span class=nv>OTEL_TRACES_EXPORTER</span><span class=o>=</span>console
+</span></span><span class=line><span class=cl><span class=nb>export</span> <span class=nv>OTEL_SERVICE_NAME</span><span class=o>=</span>otl-example
+</span></span><span class=line><span class=cl>opentelemetry-instrument uvicorn app:app --port <span class=m>8080</span>
+</span></span></code></pre></td></tr></table></div></div><blockquote><p>A instrumentação automática é desabilitada sempre que usamos o <code>--reload</code> no uvicorn.</p></blockquote><blockquote><p>Como o foco do post é no APM, apenas as configurações para habilita-lo estão sendo
+mostras, mas, se necessário, é preciso definir outros parâmetros para habilitar o envio
+de métricas e logs.</p></blockquote><p>Após a execução da aplicação usando o comando novo algumas informações novas serão
+mostradas no console em formato json. Essas informações são alguns traces que são
+capturados automaticamente pela ferramenta sem precisarmos fazer nenhum tipo de definição.</p><h3 id=adicionando-traces-manuais><a href=#adicionando-traces-manuais class=anchor><svg class="icon" aria-hidden="true" focusable="false" height="16" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5.0-3-1.69-3-3.5S2.55 3 4 3h4c1.45.0 3 1.69 3 3.5.0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98.0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98.0-2-1.22-2-2.5.0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45.0 3-1.69 3-3.5S14.5 6 13 6z"/></svg></a>Adicionando Traces Manuais</h3><p>Em alguns momentos é interessante criarmos alguns traces manuais para medir o tempo gasto
+em alguns pontos da nossa aplicação (ex: tempo gasto para obter um dado do banco de dados
+ou o tempo gasto em alguma requisição externa) ou salvar alguma informação importante do
+momento.</p><p>Para fazer essa adição, primeiro precisamos obter um <code>tracer</code> (parecido com o que fazemos
+para obter um <code>logger</code>):</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=kn>from</span> <span class=nn>opentelemetry</span> <span class=kn>import</span> <span class=n>trace</span>
+</span></span><span class=line><span class=cl><span class=n>tracer</span> <span class=o>=</span> <span class=n>trace</span><span class=o>.</span><span class=n>get_tracer</span><span class=p>(</span><span class=s2>&#34;diceroller.tracer&#34;</span><span class=p>)</span>
+</span></span></code></pre></td></tr></table></div></div><p>Para criar um <code>span</code> nesse tracer é necessário criar um contexto novo contendo o código
+que será monitorado, exemplo:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=k>with</span> <span class=n>tracer</span><span class=o>.</span><span class=n>start_as_current_span</span><span class=p>(</span><span class=s2>&#34;example&#34;</span><span class=p>)</span> <span class=k>as</span> <span class=n>example_span</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>    <span class=c1># código que obtem algum dado no banco de dados</span>
+</span></span></code></pre></td></tr></table></div></div><p>As vezes salvar algumas informações presentes somente naquele momento do código pode ser
+interessante para ajudar a identificar o que estava sendo executado no momento que o trace
+foi gerado. Essas informações podem ser adicionas ao span de duas formas:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span><span class=lnt>8
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=c1># adicionado uma a uma</span>
+</span></span><span class=line><span class=cl><span class=n>example_span</span><span class=o>.</span><span class=n>set_attribute</span><span class=p>(</span><span class=s2>&#34;roll.value&#34;</span><span class=p>,</span> <span class=n>result</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># adicionando multiplas informações de uma só vez</span>
+</span></span><span class=line><span class=cl><span class=n>example_span</span><span class=o>.</span><span class=n>set_attributes</span><span class=p>({</span>
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;roll.value&#34;</span><span class=p>:</span> <span class=n>result</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;player&#34;</span><span class=p>:</span> <span class=n>player</span><span class=p>,</span>
+</span></span><span class=line><span class=cl><span class=p>})</span>
+</span></span></code></pre></td></tr></table></div></div><h3 id=código-python-final><a href=#c%c3%b3digo-python-final class=anchor><svg class="icon" aria-hidden="true" focusable="false" height="16" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5.0-3-1.69-3-3.5S2.55 3 4 3h4c1.45.0 3 1.69 3 3.5.0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98.0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98.0-2-1.22-2-2.5.0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45.0 3-1.69 3-3.5S14.5 6 13 6z"/></svg></a>Código Python Final</h3><p>Após as modificações descritas anteriormente, nosso código ficou da seguinte forma:</p><p>app.py</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=kn>from</span> <span class=nn>random</span> <span class=kn>import</span> <span class=n>randint</span>
+</span></span><span class=line><span class=cl><span class=kn>from</span> <span class=nn>typing</span> <span class=kn>import</span> <span class=n>Optional</span>
+</span></span><span class=line><span class=cl><span class=kn>import</span> <span class=nn>logging</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kn>from</span> <span class=nn>fastapi</span> <span class=kn>import</span> <span class=n>FastAPI</span>
+</span></span><span class=line><span class=cl><span class=kn>from</span> <span class=nn>opentelemetry</span> <span class=kn>import</span> <span class=n>trace</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=n>logging</span><span class=o>.</span><span class=n>basicConfig</span><span class=p>(</span><span class=n>level</span><span class=o>=</span><span class=n>logging</span><span class=o>.</span><span class=n>INFO</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=n>app</span> <span class=o>=</span> <span class=n>FastAPI</span><span class=p>()</span>
+</span></span><span class=line><span class=cl><span class=n>logger</span> <span class=o>=</span> <span class=n>logging</span><span class=o>.</span><span class=n>getLogger</span><span class=p>(</span><span class=vm>__name__</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=n>tracer</span> <span class=o>=</span> <span class=n>trace</span><span class=o>.</span><span class=n>get_tracer</span><span class=p>(</span><span class=s2>&#34;diceroller.tracer&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>def</span> <span class=nf>roll</span><span class=p>():</span>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=n>randint</span><span class=p>(</span><span class=mi>1</span><span class=p>,</span> <span class=mi>6</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=nd>@app.get</span><span class=p>(</span><span class=s2>&#34;/rolldice&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=k>async</span> <span class=k>def</span> <span class=nf>roll_dice</span><span class=p>(</span><span class=n>player</span><span class=p>:</span> <span class=n>Optional</span><span class=p>[</span><span class=nb>str</span><span class=p>]</span> <span class=o>=</span> <span class=s2>&#34;Anonymous&#34;</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=k>with</span> <span class=n>tracer</span><span class=o>.</span><span class=n>start_as_current_span</span><span class=p>(</span><span class=s2>&#34;example&#34;</span><span class=p>)</span> <span class=k>as</span> <span class=n>example_span</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>        <span class=c1># Joga o dado e recebe o resultado aleatório</span>
+</span></span><span class=line><span class=cl>        <span class=n>result</span> <span class=o>=</span> <span class=n>roll</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>        <span class=n>example_span</span><span class=o>.</span><span class=n>set_attributes</span><span class=p>({</span>
+</span></span><span class=line><span class=cl>            <span class=s2>&#34;roll.value&#34;</span><span class=p>:</span> <span class=n>result</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>            <span class=s2>&#34;player&#34;</span><span class=p>:</span> <span class=n>player</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>        <span class=p>})</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=n>logger</span><span class=o>.</span><span class=n>warn</span><span class=p>(</span><span class=s2>&#34;</span><span class=si>%s</span><span class=s2> is rolling the dice: </span><span class=si>%d</span><span class=s2>&#34;</span><span class=p>,</span> <span class=n>player</span><span class=p>,</span> <span class=n>result</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=p>{</span><span class=s2>&#34;result&#34;</span><span class=p>:</span> <span class=n>result</span><span class=p>}</span>
+</span></span></code></pre></td></tr></table></div></div><h3 id=enviando-as-informações-coletadas-para-o-servidor-de-apm><a href=#enviando-as-informa%c3%a7%c3%b5es-coletadas-para-o-servidor-de-apm class=anchor><svg class="icon" aria-hidden="true" focusable="false" height="16" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5.0-3-1.69-3-3.5S2.55 3 4 3h4c1.45.0 3 1.69 3 3.5.0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98.0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98.0-2-1.22-2-2.5.0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45.0 3-1.69 3-3.5S14.5 6 13 6z"/></svg></a>Enviando as informações coletadas para o Servidor de APM</h3><p>Agora que temos nosso código escrito utilizando o OpenTelemetry precisamos apenas
+configurar o backend que será utilizado para salvar essas informações. Para fazer isso
+vamos definir o endpoint do coletor de dados OpenTelemetry e mudar o <code>exporter</code> de trace
+do <code>console</code> para o <code>otlp</code> (formato utilizado pelo coletor de dados OpenTelemetry).
+Podemos fazer isso adicionando alguns parâmetros ao <code>opentelemetry-instrument</code> ou atráves
+de variáveis de ambiente, como mostrado a seguir:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>opentelemetry-instrument <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>    --exporter_otlp_endpoint <span class=s1>&#39;http://&lt;dominio do coletor&gt;:4317&#39;</span> <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>    --traces_exporter otlp <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>    --service_name otl-example <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>        uvicorn app:app --port <span class=m>8080</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=nb>export</span> <span class=nv>OTEL_EXPORTER_OTLP_ENDPOINT</span><span class=o>=</span><span class=s1>&#39;http://&lt;dominio do coletor&gt;:4317&#39;</span>
+</span></span><span class=line><span class=cl><span class=nb>export</span> <span class=nv>OTEL_TRACES_EXPORTER</span><span class=o>=</span>otlp
+</span></span><span class=line><span class=cl><span class=nb>export</span> <span class=nv>OTEL_SERVICE_NAME</span><span class=o>=</span>otl-example
+</span></span><span class=line><span class=cl>opentelemetry-instrument uvicorn app:app --port <span class=m>8080</span>
+</span></span></code></pre></td></tr></table></div></div><blockquote><p>Caso o <code>exporter otlp endpoint</code> não seja definido, é utilizado o valor padrão
+<code>http://localhost:4317/</code></p></blockquote><blockquote><p>É possível enviar as informações para o coletor e o console ao mesmo tempo. Para fazer
+isso basta definir o <code>exporter</code> como <code>console,otlp</code>.</p></blockquote><h2 id=colocando-tudo-para-rodar><a href=#colocando-tudo-para-rodar class=anchor><svg class="icon" aria-hidden="true" focusable="false" height="16" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5.0-3-1.69-3-3.5S2.55 3 4 3h4c1.45.0 3 1.69 3 3.5.0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98.0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98.0-2-1.22-2-2.5.0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45.0 3-1.69 3-3.5S14.5 6 13 6z"/></svg></a>Colocando tudo para rodar</h2><p>Para mostrar tudo que foi ensinado nesse post funcionando, vamos utilizar o
+<a href=https://www.jaegertracing.io/>Jaeger</a> como coletor dos dados e observar os dados
+chegando nele. Para fazer isso vamos executa-lo utilizando o <code>docker</code>:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1># executa o jaeger em background</span>
+</span></span><span class=line><span class=cl>docker run -d --rm --name jaeger <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>    -p 16686:16686 <span class=sb>`</span><span class=c1># porta da interface web` \</span>
+</span></span><span class=line><span class=cl>    -p 4317:4317 <span class=sb>`</span><span class=c1># porta do coletor OpenTelemetry` \</span>
+</span></span><span class=line><span class=cl>    jaegertracing/all-in-one:1.52
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># inicia nossa aplicação utilizando o endpoint padrão</span>
+</span></span><span class=line><span class=cl><span class=nb>export</span> <span class=nv>OTEL_TRACES_EXPORTER</span><span class=o>=</span>console,otlp
+</span></span><span class=line><span class=cl><span class=nb>export</span> <span class=nv>OTEL_SERVICE_NAME</span><span class=o>=</span>otl-example
+</span></span><span class=line><span class=cl>opentelemetry-instrument uvicorn app:app --port <span class=m>8080</span>
+</span></span></code></pre></td></tr></table></div></div><p>Após a aplicação iniciar e fazermos algumas requisições, podemos ver os traces chegando no
+jaeger através da interface que pode ser acessada pelo link
+<a href=http://localhost:16686/>http://localhost:16686/</a>.</p><h2 id=conclusão><a href=#conclus%c3%a3o class=anchor><svg class="icon" aria-hidden="true" focusable="false" height="16" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5.0-3-1.69-3-3.5S2.55 3 4 3h4c1.45.0 3 1.69 3 3.5.0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98.0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98.0-2-1.22-2-2.5.0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45.0 3-1.69 3-3.5S14.5 6 13 6z"/></svg></a>Conclusão</h2><p>As vezes a mudança de ferramenta é necessária, seja para reduzir custos, adicionar
+funcionalidades ou para padronizar em uma ferramenta só, mas, nem sempre essa mudança
+precisa ser sinônimo de algo ruim. Como vimos nesse post, é possível utilizar de boas
+ferramentas para das suporte a outras, e assim, criar um ecosistema sustentável em que não
+precisamos ficar recriando a roda o tempo todo.</p></div></div><div class=container><nav class="flex container suggested"></nav></div><div class=container><script src=https://giscus.app/client.js data-repo=lukerops/lukerops.github.io data-repo-id=R_kgDOHraWIw data-category=Comments data-category-id=DIC_kwDOHraWI84CRFdE data-mapping=pathname data-reactions-enabled=1 data-emit-metadata=0 data-theme=light crossorigin=anonymous async></script><script>function setGiscusTeheme(e){let t=document.querySelector(".giscus iframe");t&&t.contentWindow.postMessage({giscus:{setConfig:{theme:e}}},"https://giscus.app")}addEventListener("message",e=>{if(e.origin!=="https://giscus.app")return;setGiscusTeheme(document.documentElement.dataset.userColorScheme)}),window.addEventListener("onColorSchemeChange",e=>{setGiscusTeheme(e.detail)})</script></div></main></main><footer class="footer flex"><section class=container><nav class=footer-links><a href=/index.xml>RSS</a></nav></section><script defer src=/ts/features.706a523ba43e6d0427c7fdf2b9d05dbd0920d3f12942b453690b495cb2522743.js data-enable-footnotes=true></script></footer></body></html>
