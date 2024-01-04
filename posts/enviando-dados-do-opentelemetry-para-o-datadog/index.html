@@ -1,0 +1,269 @@
+<!doctype html><html lang=pt-br><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><meta http-equiv=X-UA-Compatible content="IE=edge"><meta name=theme-color content="dark"><title>Enviando dados do Opentelemetry para o Datadog | Blog do Lucas</title>
+<meta property="og:site_name" content="Hugo Tania is Amazing"><meta property="og:title" content="Enviando dados do Opentelemetry para o Datadog | Blog do Lucas"><meta itemprop=name content="Enviando dados do Opentelemetry para o Datadog | Blog do Lucas"><meta name=twitter:title content="Enviando dados do Opentelemetry para o Datadog | Blog do Lucas"><meta name=application-name content="Enviando dados do Opentelemetry para o Datadog | Blog do Lucas"><meta name=twitter:card content="summary"><meta name=description content="Hugo is Absurdly Fast!"><meta name=twitter:description content="Hugo is Absurdly Fast!"><meta itemprop=description content="Hugo is Absurdly Fast!"><meta property="og:description" content="Hugo is Absurdly Fast!"><link rel="shortcut icon" type=image/x-icon href=/favicon.ico><link rel=stylesheet href=/sass/main.min.ab99ff095f832511e24ffb2fba2b51ad473b2f7e9301d674eba2c6c3a6e8bd81.css></head><script>(function(){const e="ThemeColorScheme";localStorage.getItem(e)||localStorage.setItem(e,"auto")})()</script><script>(function(){const t="ThemeColorScheme",e=localStorage.getItem(t),n=window.matchMedia("(prefers-color-scheme: dark)").matches===!0;e=="dark"||e==="auto"&&n?document.documentElement.dataset.userColorScheme="dark":document.documentElement.dataset.userColorScheme="light"})()</script><body class=dark><nav class=navbar><div class=container><div class=flex><div><a class=brand href=/>Blog do Lucas</a></div><div class=flex><a href=/posts/>Posts</a>
+<button id=dark-mode-button><svg class="light" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" focusable="false" width="1em" height="1em" style="-ms-transform:rotate(360deg);-webkit-transform:rotate(360deg);transform:rotate(360deg)" viewBox="0 0 36 36"><path fill="#ffd983" d="M30.312.776C32 19 20 32 .776 30.312c8.199 7.717 21.091 7.588 29.107-.429C37.9 21.867 38.03 8.975 30.312.776z"/><path d="M30.705 15.915a1.163 1.163.0 101.643 1.641 1.163 1.163.0 00-1.643-1.641zm-16.022 14.38a1.74 1.74.0 000 2.465 1.742 1.742.0 100-2.465zm13.968-2.147a2.904 2.904.0 01-4.108.0 2.902 2.902.0 010-4.107 2.902 2.902.0 014.108.0 2.902 2.902.0 010 4.107z" fill="#ffcc4d"/><rect x="0" y="0" width="36" height="36" fill="rgba(0, 0, 0, 0)"/></svg><svg class="dark" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" focusable="false" width="1em" height="1em" style="-ms-transform:rotate(360deg);-webkit-transform:rotate(360deg);transform:rotate(360deg)" viewBox="0 0 36 36"><path fill="#ffd983" d="M16 2s0-2 2-2 2 2 2 2v2s0 2-2 2-2-2-2-2V2zm18 14s2 0 2 2-2 2-2 2h-2s-2 0-2-2 2-2 2-2h2zM4 16s2 0 2 2-2 2-2 2H2s-2 0-2-2 2-2 2-2h2zm5.121-8.707s1.414 1.414.0 2.828-2.828.0-2.828.0L4.878 8.708s-1.414-1.414.0-2.829c1.415-1.414 2.829.0 2.829.0l1.414 1.414zm21 21s1.414 1.414.0 2.828-2.828.0-2.828.0l-1.414-1.414s-1.414-1.414.0-2.828 2.828.0 2.828.0l1.414 1.414zm-.413-18.172s-1.414 1.414-2.828.0.0-2.828.0-2.828l1.414-1.414s1.414-1.414 2.828.0.0 2.828.0 2.828l-1.414 1.414zm-21 21s-1.414 1.414-2.828.0.0-2.828.0-2.828l1.414-1.414s1.414-1.414 2.828.0.0 2.828.0 2.828l-1.414 1.414zM16 32s0-2 2-2 2 2 2 2v2s0 2-2 2-2-2-2-2v-2z"/><circle fill="#ffd983" cx="18" cy="18" r="10"/><rect x="0" y="0" width="36" height="36" fill="rgba(0, 0, 0, 0)"/></svg></button></div></div></div></nav><main><div class=container><article><header class=article-header><div class=thumb><div><h1>Enviando dados do Opentelemetry para o Datadog</h1><div class=post-meta><div>By Lucas Campos Vieira | <time>January 02, 2024</time>
+| 7 minutes</div><div class=tags><a href=/tags/python/>python</a>
+<a href=/tags/datadog/>datadog</a>
+<a href=/tags/opentelemetry/>opentelemetry</a>
+<a href=/tags/trace/>trace</a>
+<a href=/tags/apm/>apm</a></div></div></div></div></header></article><div class=article-post><h2 id=introdução><a href=#introdu%c3%a7%c3%a3o class=anchor><svg class="icon" aria-hidden="true" focusable="false" height="16" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5.0-3-1.69-3-3.5S2.55 3 4 3h4c1.45.0 3 1.69 3 3.5.0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98.0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98.0-2-1.22-2-2.5.0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45.0 3-1.69 3-3.5S14.5 6 13 6z"/></svg></a>Introdução</h2><p>A maior vantagem do OpenTelemetry está na sua integração com diferentes backends, tornando
+possível o envio das informações para vários locais diferentes sem a necessidade de
+alteração do código da aplicação, portanto, dando continuidade ao assunto do meu <a href=https://blog.lukerops.com/posts/resolvendo-apm-em-python-com-opentelemetry/>post
+anterior</a>, nesse post
+vou abordar o envio dos traces coletados na aplicação python para o Datadog.</p><h2 id=integração-do-datadog-com-o-opentelemetry><a href=#integra%c3%a7%c3%a3o-do-datadog-com-o-opentelemetry class=anchor><svg class="icon" aria-hidden="true" focusable="false" height="16" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5.0-3-1.69-3-3.5S2.55 3 4 3h4c1.45.0 3 1.69 3 3.5.0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98.0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98.0-2-1.22-2-2.5.0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45.0 3-1.69 3-3.5S14.5 6 13 6z"/></svg></a>Integração do Datadog com o OpenTelemetry</h2><p>O Datadog, assim como outros provedores de APM já se adaptou completamente ao uso do
+OpenTelemetry como ponto de coleta das informações, portanto, existem algumas formas de
+configurar essa integração.</p><blockquote><p>Esteja ciente de que o foco do post é no envio apenas dos traces, assim, as
+configurações apresentadas funcionarão apenas para isso.</p></blockquote><p>Atualmente existem 3 formas de enviar os dados de trace para o Datadog:</p><ol><li>Através do coletor oficial do OpenTelemetry;</li><li>Através do Agente do Datadog;</li><li>Através do cliente <code>ddtrace</code>.</li></ol><h3 id=opentelemetry-collector><a href=#opentelemetry-collector class=anchor><svg class="icon" aria-hidden="true" focusable="false" height="16" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5.0-3-1.69-3-3.5S2.55 3 4 3h4c1.45.0 3 1.69 3 3.5.0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98.0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98.0-2-1.22-2-2.5.0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45.0 3-1.69 3-3.5S14.5 6 13 6z"/></svg></a>OpenTelemetry Collector</h3><p>Junto com o surgimento do OpenTelemetry também surgiu o <a href=https://opentelemetry.io/docs/collector/>OpenTelemetry
+Collector</a> (ou Otel Collector). A ideia
+principal desse coletor é que ele seja uma forma de receber, processar e exportar os dados
+completamente agnostica aos provedores contratados, sendo possível o envio dos dados para
+mais de um provedor de forma simultânea.</p><p>Segundo a <a href=https://opentelemetry.io/docs/collector/>documentação oficial</a>, é possível
+utiliza o coletor de três formas:</p><ul><li><strong>local:</strong> cada aplicação terá uma instância do coletor localmente;</li><li><strong>centralizado:</strong> existirá apenas um instância central do coletor que todas as
+aplicações utilizarão;</li><li><strong>combinado:</strong> nesse formato cada aplicação pode, ou não, ter uma instância do coletor,
+mas existirá outras intâncias, ou seja, um coletor enviará os dados para outros coletores,
+fazendo uma espécie de roteamento dos dados coletados.</li></ul><h4 id=local><a href=#local class=anchor><svg class="icon" aria-hidden="true" focusable="false" height="16" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5.0-3-1.69-3-3.5S2.55 3 4 3h4c1.45.0 3 1.69 3 3.5.0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98.0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98.0-2-1.22-2-2.5.0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45.0 3-1.69 3-3.5S14.5 6 13 6z"/></svg></a>local</h4><p>Essa forma de utilização possui a vantagem de ser menos propenso a falhas, já que se um
+coletor apresentar problemas, apenas uma aplicação será impactada, porém, apresenta uma
+maior complexidade de gerencia de tokens de acesso, já que cada aplicação necessitará de
+um token para enviar os dados.</p><h4 id=centralizado><a href=#centralizado class=anchor><svg class="icon" aria-hidden="true" focusable="false" height="16" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5.0-3-1.69-3-3.5S2.55 3 4 3h4c1.45.0 3 1.69 3 3.5.0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98.0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98.0-2-1.22-2-2.5.0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45.0 3-1.69 3-3.5S14.5 6 13 6z"/></svg></a>centralizado</h4><p>Essa forma de utilização é contrária a anterior. Possui uma configuração simplificada,
+porém, centraliza todos os dados em uma instância, criando um ponto de falha.</p><h4 id=combinado><a href=#combinado class=anchor><svg class="icon" aria-hidden="true" focusable="false" height="16" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5.0-3-1.69-3-3.5S2.55 3 4 3h4c1.45.0 3 1.69 3 3.5.0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98.0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98.0-2-1.22-2-2.5.0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45.0 3-1.69 3-3.5S14.5 6 13 6z"/></svg></a>combinado</h4><p>Essa forma de utilização tenta unir as vantagens das anteriores, criando um modelo mais
+robusto. Como o coletor possui a capacidade de envio dos dados para multiplos locais de
+forma simultânea, é possível centralizar os dados em mais de um coletor, assim, diminuindo
+o ponto de falha. Por ainda apresentar os coletores centrais, apenas eles possuem os
+tokens para envio dos dados, o que torna o gerenciamento dos tokens tão simples quanto o
+modelo centralizado.</p><p>Sua desvantagem está na complexidade da solução. Como agora sua arquitetura possui mais
+componentes, isso demanda mais arquivos de configuração e mais pontos de atenção para
+segurança dos dados, tornando toda a coisa mais complexa.</p><hr><blockquote><p>Por questões de simplicidade, vou abordar apenas o modelo centralizado.</p></blockquote><p>A configuração do coletor é feita através de um arquivo <code>YAML</code>. Para a criação desse
+arquivo vamos seguir duas documentações: a
+<a href=https://opentelemetry.io/docs/collector/configuration/>oficial</a> e a do
+<a href=https://docs.datadoghq.com/opentelemetry/otel_collector_Datadog_exporter/#2-configure-the-Datadog-exporter>Datadog</a>.
+Com isso, chegamos ao seguinte arquivo:</p><p>otel-collector-config.yaml</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span><span class=lnt>36
+</span><span class=lnt>37
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-yaml data-lang=yaml><span class=line><span class=cl><span class=c># Nesse seção configuramos como nosso coletor irá</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=c># receber os dados. No nosso caso, configuramos o</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=c># otlp para ser nossa entrada de dados através</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=c># do protocolo grpc na porta padrão (4317).</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>receivers</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>otlp</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>protocols</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>grpc</span><span class=p>:</span><span class=w> </span>{}<span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=c># Nessa seção configuramos o processamento dos dados</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=c># recebidos. No nosso caso, vamos fazer o processamento</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=c># em batch usando as configurações padrões.</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>processors</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>batch</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=c># Datadog APM tem o limite de envio de 3.2MB.</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=c># Configura para que não envie mais do que isso.</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>send_batch_max_size</span><span class=p>:</span><span class=w> </span><span class=m>1000</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>send_batch_size</span><span class=p>:</span><span class=w> </span><span class=m>100</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>timeout</span><span class=p>:</span><span class=w> </span><span class=l>10s</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=c># Nessa seção configuramos como o coletor exportará</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=c># os dados. No nosso caso, enviaremos para o Datadog.</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>exporters</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>datadog</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>api</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>site</span><span class=p>:</span><span class=w> </span><span class=l>${env:DD_SITE}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>key</span><span class=p>:</span><span class=w> </span><span class=l>${env:DD_API_KEY}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=c># Nessa seção configuramos quais componentes do</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=c># coletor serão habilitados. No nosso caso, apenas</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=c># os traces serão habilitados.</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>service</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>pipelines</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>traces</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>receivers</span><span class=p>:</span><span class=w> </span><span class=p>[</span><span class=l>otlp]</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>processors</span><span class=p>:</span><span class=w> </span><span class=p>[</span><span class=l>batch]</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>exporters</span><span class=p>:</span><span class=w> </span><span class=p>[</span><span class=l>datadog]</span><span class=w>
+</span></span></span></code></pre></td></tr></table></div></div><p>Agora que temos a configuração feita podemos iniciar o coletor. Vamos utilizar o docker
+para fazer isso com o comando:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>docker run --rm -d --name otel-collector <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>    -e <span class=nv>DD_SITE</span><span class=o>=</span>datadoghq.com <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>    -e <span class=nv>DD_API_KEY</span><span class=o>=</span><span class=s1>&#39;&lt;api-key&gt;&#39;</span> <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>    -v ./otel-collector-config.yaml:/etc/otel-collector-config.yaml:ro <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>    -p 4317:4317 <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>    otel/opentelemetry-collector-contrib:latest <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>        --config<span class=o>=</span>/etc/otel-collector-config.yaml
+</span></span></code></pre></td></tr></table></div></div><p>No caso do Datadog, não podemos esquecer de definir os seguites parâmetros antes de
+iniciar nossa aplicação:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=nb>export</span> <span class=nv>OTEL_TRACES_EXPORTER</span><span class=o>=</span>otlp
+</span></span><span class=line><span class=cl><span class=nb>export</span> <span class=nv>OTEL_SERVICE_NAME</span><span class=o>=</span><span class=s1>&#39;&lt;service&gt;&#39;</span>
+</span></span><span class=line><span class=cl><span class=nb>export</span> <span class=nv>OTEL_RESOURCE_ATTRIBUTES</span><span class=o>=</span>deployment.environment<span class=o>=</span><span class=s1>&#39;&lt;environment&gt;&#39;</span>,service.version<span class=o>=</span><span class=s1>&#39;&lt;version&gt;&#39;</span>
+</span></span></code></pre></td></tr></table></div></div><h3 id=datadog-agent><a href=#datadog-agent class=anchor><svg class="icon" aria-hidden="true" focusable="false" height="16" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5.0-3-1.69-3-3.5S2.55 3 4 3h4c1.45.0 3 1.69 3 3.5.0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98.0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98.0-2-1.22-2-2.5.0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45.0 3-1.69 3-3.5S14.5 6 13 6z"/></svg></a>Datadog Agent</h3><p>Atualmente o agente do Datadog possui a funcionalidade de trabalhar também como um coletor
+do OpenTelemetry. Segundo a
+<a href="https://docs.datadoghq.com/opentelemetry/otlp_ingest_in_the_agent/?tab=docker#enabling-otlp-ingestion-on-the-Datadog-agent">documentação</a>,
+para habilitar essa funcionalidade basta definir algumas variáveis de ambiente e apontar
+nossa aplicação para utilizar o agente. Como existem duas formas de rodar o agente,
+serverless e isolado, vou apontar as diferenças na sua configuração.</p><blockquote><p>Assim como no <code>Otel Collector</code>, não podemos esquecer de definir as variáveis de ambiente
+<code>OTEL_TRACES_EXPORTER</code>, <code>OTEL_SERVICE_NAME</code> e <code>OTEL_RESOURCE_ATTRIBUTES</code>.</p></blockquote><h4 id=serverless><a href=#serverless class=anchor><svg class="icon" aria-hidden="true" focusable="false" height="16" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5.0-3-1.69-3-3.5S2.55 3 4 3h4c1.45.0 3 1.69 3 3.5.0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98.0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98.0-2-1.22-2-2.5.0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45.0 3-1.69 3-3.5S14.5 6 13 6z"/></svg></a>Serverless</h4><p>Segundo a <a href=https://docs.datadoghq.com/serverless>documentação</a>, esse modo consiste em
+subir o agente junto a aplicação no container. Para configurar o agente <em>serverless</em> a
+habilitar o OpenTelementry, basta adicionar as seguintes linhas no <code>Dockerfile</code>:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Dockerfile data-lang=Dockerfile><span class=line><span class=cl><span class=c># Copia o agente para sua imagem docker.</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=k>COPY</span> --from<span class=o>=</span>datadog/serverless-init:1 /datadog-init /usr/bin/datadog-init<span class=err>
+</span></span></span><span class=line><span class=cl><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=c># Define o agente como ponto de entrada da sua imagem.</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=c># Obs: o agente que irá inicializar sua aplicação, assim, basta</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=c># definir os comandos de inicialização da aplicação como &#34;CMDS&#34;.</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=k>ENTRYPOINT</span> <span class=p>[</span><span class=s2>&#34;/usr/bin/datadog-init&#34;</span><span class=p>]</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=c># Configura o DD_SITE para onde o agente irá enviar os dados.</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=k>ENV</span> <span class=nv>DD_SITE</span><span class=o>=</span>datadoghq.com<span class=err>
+</span></span></span><span class=line><span class=cl><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=c># Habilita a coleta de dados de APM.</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=k>ENV</span> <span class=nv>DD_APM_ENABLED</span><span class=o>=</span><span class=nb>true</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c># Habilita o agente a funcionar como coletor do OpenTelemetry</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=c># utilizando o protocolo GRPC.</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=k>ENV</span> <span class=nv>DD_OTLP_CONFIG_RECEIVER_PROTOCOLS_GRPC_ENDPOINT</span><span class=o>=</span><span class=m>127</span>.0.0.1:4317<span class=err>
+</span></span></span><span class=line><span class=cl><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=c># Habilita a coletas de traces utilizando o OpenTelemetry.</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=k>ENV</span> <span class=nv>DD_OTLP_CONFIG_TRACES_ENABLED</span><span class=o>=</span><span class=nb>true</span>
+</span></span></code></pre></td></tr></table></div></div><blockquote><p>Por questões de segurança, nunca adicione o <code>DD_API_KEY</code> na imagem, assim, seu token não
+ficará exposto na imagem docker.</p></blockquote><h4 id=isolado><a href=#isolado class=anchor><svg class="icon" aria-hidden="true" focusable="false" height="16" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5.0-3-1.69-3-3.5S2.55 3 4 3h4c1.45.0 3 1.69 3 3.5.0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98.0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98.0-2-1.22-2-2.5.0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45.0 3-1.69 3-3.5S14.5 6 13 6z"/></svg></a>Isolado</h4><p>O agente do Datadog possui várias formas de ser inicializado. Eu separei esse modo como
+&ldquo;isolado&rdquo; pelo fato de todas essas formas inicializarem o agente separado da aplicação.
+A configuração para esse modo consiste na definição das mesmas variáveis de ambiente,
+apenas alterando o valor de uma delas e definindo uma a mais, ficando:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1># Configura o token que será utilizado para enviar os dados.</span>
+</span></span><span class=line><span class=cl><span class=nv>DD_API_KEY</span><span class=o>=</span><span class=s1>&#39;&lt;api-key&gt;&#39;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Configura o DD_SITE para onde o agente irá enviar os dados.</span>
+</span></span><span class=line><span class=cl><span class=nv>DD_SITE</span><span class=o>=</span>datadoghq.com
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Habilita a coleta de dados de APM.</span>
+</span></span><span class=line><span class=cl><span class=nv>DD_APM_ENABLED</span><span class=o>=</span><span class=nb>true</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Habilita o agente a receber dados não locais, ou seja, de</span>
+</span></span><span class=line><span class=cl><span class=c1># outras máquinas.</span>
+</span></span><span class=line><span class=cl><span class=c1>#</span>
+</span></span><span class=line><span class=cl><span class=c1># Obs: utilizar apenas se o agente for coletar dados de aplicações</span>
+</span></span><span class=line><span class=cl><span class=c1># externas a máquina/container em que o agente se encontra.</span>
+</span></span><span class=line><span class=cl><span class=nv>DD_APM_NON_LOCAL_TRAFFIC</span><span class=o>=</span><span class=nb>true</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Habilita o agente a funcionar como coletor do OpenTelemetry</span>
+</span></span><span class=line><span class=cl><span class=c1># utilizando o protocolo GRPC.</span>
+</span></span><span class=line><span class=cl><span class=nv>DD_OTLP_CONFIG_RECEIVER_PROTOCOLS_GRPC_ENDPOINT</span><span class=o>=</span>0.0.0.0:4317
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Habilita a coletas de traces utilizando o OpenTelemetry.</span>
+</span></span><span class=line><span class=cl><span class=nv>DD_OTLP_CONFIG_TRACES_ENABLED</span><span class=o>=</span><span class=nb>true</span>
+</span></span></code></pre></td></tr></table></div></div><h3 id=datadog-python-apm-client-ddtrace><a href=#datadog-python-apm-client-ddtrace class=anchor><svg class="icon" aria-hidden="true" focusable="false" height="16" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5.0-3-1.69-3-3.5S2.55 3 4 3h4c1.45.0 3 1.69 3 3.5.0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98.0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98.0-2-1.22-2-2.5.0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45.0 3-1.69 3-3.5S14.5 6 13 6z"/></svg></a>Datadog Python APM Client (ddtrace)</h3><p>Quando escrevemos uma aplicação em python, uma forma fácil de coletar e enviar dados de
+trace para o Datadog é através do cliente <code>ddtrace</code>. Ele é responsável por fazer uma
+instrumentação automática, mas também possibilita o envio de dados customizados pelo
+código, porém, estamos fugindo do acoplamento do código a apenas um provider de APM.</p><p>Pensando na facilidade de se utilizar o <code>ddtrace</code>, foi adicionado uma funcionalidade nova
+para realizar a configuração do OpenTelemetry de forma automática, assim, utilizando o
+<code>ddtrace</code> como proxy para que os dados sejam enviados para o agente do Datadog. Para
+habilitar essa funcionalidade precisamos apenas definir uma variável de ambiente antes de
+iniciar o código. Usando o comando de inicialização da aplicação apresentada no post
+anterior, fica:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1># Comando de inicialização usando a instrumentação</span>
+</span></span><span class=line><span class=cl><span class=c1># automática do OpenTelemetry.</span>
+</span></span><span class=line><span class=cl><span class=nb>export</span> <span class=nv>OTEL_SERVICE_NAME</span><span class=o>=</span><span class=s1>&#39;&lt;service&gt;&#39;</span>
+</span></span><span class=line><span class=cl><span class=nb>export</span> <span class=nv>OTEL_RESOURCE_ATTRIBUTES</span><span class=o>=</span>deployment.environment<span class=o>=</span><span class=s1>&#39;&lt;environment&gt;&#39;</span>,service.version<span class=o>=</span><span class=s1>&#39;&lt;version&gt;&#39;</span>
+</span></span><span class=line><span class=cl>opentelemetry-instrument uvicorn app:app --port <span class=m>8080</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Comando de inicialização usando o ddtrace.</span>
+</span></span><span class=line><span class=cl><span class=nb>export</span> <span class=nv>DD_SERVICE</span><span class=o>=</span><span class=s1>&#39;&lt;service&gt;&#39;</span>
+</span></span><span class=line><span class=cl><span class=nb>export</span> <span class=nv>DD_ENV</span><span class=o>=</span><span class=s1>&#39;&lt;environment&gt;&#39;</span>
+</span></span><span class=line><span class=cl><span class=nb>export</span> <span class=nv>DD_VERSION</span><span class=o>=</span><span class=s1>&#39;&lt;version&gt;&#39;</span>
+</span></span><span class=line><span class=cl><span class=nb>export</span> <span class=nv>DD_TRACE_OTEL_ENABLED</span><span class=o>=</span><span class=nb>true</span>
+</span></span><span class=line><span class=cl>ddtrace-run uvicorn app:app --port <span class=m>8080</span>
+</span></span></code></pre></td></tr></table></div></div><blockquote><p>🚨 Atenção: o <code>ddtrace</code> coleta apenas dados de trace, portanto, caso queira que métricas
+e logs também sejam coletados, terá que mudar para uma das outras soluções apresentadas
+acima.</p></blockquote><h2 id=conclusão><a href=#conclus%c3%a3o class=anchor><svg class="icon" aria-hidden="true" focusable="false" height="16" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5.0-3-1.69-3-3.5S2.55 3 4 3h4c1.45.0 3 1.69 3 3.5.0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98.0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98.0-2-1.22-2-2.5.0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45.0 3-1.69 3-3.5S14.5 6 13 6z"/></svg></a>Conclusão</h2><p>Como vimos acima, existem várias formas de integrar seu código escrito com OpenTelemetry
+no Datadog, cada uma com suas vantagens e complexidade diferente. Isso é importante porque
+fazendo dessa forma, conseguimos desacoplhar todo o nosso código de uma implementação
+fechada de uma ferramenta, o que torna a mudança para outra ferramenta, caso necessário,
+mais simples e rápida.</p></div></div><div class=container><nav class="flex container suggested"><a rel=prev href=/posts/resolvendo-apm-em-python-com-opentelemetry/ title="Previous post (older)"><span>Previous</span>
+Resolvendo APM em Python com OpenTelemetry</a></nav></div><div class=container><script src=https://giscus.app/client.js data-repo=lukerops/lukerops.github.io data-repo-id=R_kgDOHraWIw data-category=Comments data-category-id=DIC_kwDOHraWI84CRFdE data-mapping=pathname data-reactions-enabled=1 data-emit-metadata=0 data-theme=light crossorigin=anonymous async></script><script>function setGiscusTeheme(e){let t=document.querySelector(".giscus iframe");t&&t.contentWindow.postMessage({giscus:{setConfig:{theme:e}}},"https://giscus.app")}addEventListener("message",e=>{if(e.origin!=="https://giscus.app")return;setGiscusTeheme(document.documentElement.dataset.userColorScheme)}),window.addEventListener("onColorSchemeChange",e=>{setGiscusTeheme(e.detail)})</script></div></main></main><footer class="footer flex"><section class=container><nav class=footer-links><a href=/index.xml>RSS</a></nav></section><script defer src=/ts/features.706a523ba43e6d0427c7fdf2b9d05dbd0920d3f12942b453690b495cb2522743.js data-enable-footnotes=true></script></footer></body></html>
